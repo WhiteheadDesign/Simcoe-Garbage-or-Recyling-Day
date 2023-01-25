@@ -1,15 +1,17 @@
 #include <WiFiUdp.h>
 #include <NTPClient.h>
 #include <ESP8266WiFi.h>
-const int Garbage = 12;//SD3
-const int Recycling = 11;//SD2
+const int Garbage = D5; //Green 1st and 3rd week of the month Odd
+const int Recycling = D6; //Blue 2nd and 4th week of the month even
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
 void setup() {
+  pinMode(Garbage, OUTPUT);
+  pinMode(Recycling, OUTPUT);
   Serial.begin(115200);
-  WiFi.begin("SSID", "Password");
+  WiFi.begin("MAH-SHWAMP_BACKUP", "nintendo");
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
@@ -18,20 +20,18 @@ void setup() {
 }
 
 void loop() {
-timeClient.update();
-
-if(timeClient.getDay()==2){ // Day Counter starts at 0 for Sunday
-  
-  int week = (timeClient.getDay() + 6) / 7;
-
-  if (week % 2 == 0) {
-    Serial.println("Current week of the month is even. Recycling goes out");
-    digitalWrite(Recycling, LOW);
-  } else {
-    Serial.println("Current week of the month is odd. Garbage goes out");
-    digitalWrite(Garbage,LOW);
+  timeClient.update();
+  time_t currentTime = timeClient.getEpochTime();
+  struct tm *timeInfo = gmtime(&currentTime);
+  int currentWeek = (timeInfo->tm_yday - 1) / 7 + 1;
+  if (currentWeek % 2 == 0) {
+    Serial.println("Current week is even.");
+    digitalWrite(Recycling , HIGH);
   }
-
+  else {
+    Serial.println("Current week is odd.");
+    digitalWrite(Garbage, HIGH);
+  }
   delay(1000);
- }
+
 }
