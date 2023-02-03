@@ -1,4 +1,4 @@
-# Simcoe Trash or Recycle
+# Weeekly Trash or Recycleing Notification
 
 An IoT LED project that helps you keep track of your trash and recycling schedule in Simcoe County.
 
